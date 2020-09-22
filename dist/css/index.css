@@ -1,0 +1,42 @@
+body {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+}
+
+.sidebar {
+    position: relative;
+    width: 150px;
+    height: 100vh;
+    overflow: auto;
+    float: left;
+}
+
+.category-select {
+    list-style-type: none;
+}
+
+main {
+    position: relative;
+    width: calc(100vw - 150px);
+    height: 100vh;
+    overflow: auto;
+}
+
+h1 {
+    font-style: italic;
+    font-size: large;
+}
+
+#todo-list {
+    position: relative;
+    width: 100%;
+    height: auto;
+    display: grid;
+    
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+
+}
+
