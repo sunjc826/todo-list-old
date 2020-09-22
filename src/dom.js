@@ -5,7 +5,7 @@ import events from "./pubsub.js";
 let runDom = function() {
 console.log("dom.js running");
 // global variables
-let currentTodoList;
+let currentTodoList; // should currentTodoList be here or in todo.js?
 
 
 // DOM elements
@@ -29,13 +29,15 @@ function catListener(e) {
 }
 
 function addTodoBtnListener(e) {
-    todoPanel.appendChild(newTodoForm);
+    todoPanel.appendChild(newTodoForm); // remember to delete form after submission
 }
 
 const newTodoForm = (function() {
     const div = document.createElement("div");
+    div.setAttribute("style", "position: relative; width: 100%; height: 100%");
     const form = document.createElement("form");
     form.setAttribute("id", "todo-form");
+    form.classList.add("grid-form");
     // start by only allowing user to set name, date and priority
     const inputs = [
         ["Name: ", "name", "text"],
@@ -66,6 +68,7 @@ const newTodoForm = (function() {
 
     div.appendChild(submitBtn);
 
+    return div;
 })();
 
 function createInputField(inputName, inputId, inputType="text") {
