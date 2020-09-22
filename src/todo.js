@@ -12,6 +12,11 @@
 
 import events from "./pubsub.js";
 
+
+let runTodo = function() {
+
+console.log("todo.js running");
+
 function pubSub() {
     events.on("addCategory", 
         category => (categoryList.addCategory(category)));
@@ -20,13 +25,19 @@ function pubSub() {
             let todoList = categoryList.getTodoList(category);
             events.emit("answerCategory", todoList);
         });
+    events.on("createTodo", 
+        (todoList, todoData) => {
+            // const [name, date, priority] = todoData;
+            todoList.addTodo(...todoData);
+            events.emit("doneCreateTodo");
+        });
 }
 
 const categoryList = (function() {
     const categoryMap = {};
 
     function addCategory(category) {
-        if (!(category in categorySet)) {
+        if (!(category in categoryMap)) {
             categoryMap[category] = new TodoList(category);
         }
     }
@@ -237,3 +248,8 @@ const ListItem = function(selected=false, textContent="") {
 }
 
 pubSub();
+
+
+};
+
+export {runTodo as default};
