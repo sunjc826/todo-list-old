@@ -26,13 +26,20 @@ const ExpandableDiv = function(id, init, expand, obj, tag="div") {
     function initDiv() {
         state = STATE.DEFAULT;
         currentDiv = EmptyDiv();
+        refresh();
+        return currentDiv;
+    }
+
+    function refresh() {
+        currentDiv.innerHTML = "";
         // list of elements
         const div = init(linkedObj);
         currentDiv.appendChild(div);
         const expandText = document.createElement("p");
-        expandText.textContent = "See details";
+
+        
+
         expandText.addEventListener("click", function() {
-            console.log(currentDiv);
             if (state == STATE.DEFAULT) {
                 expandDiv(this);
                 this.textContent = "Hide details";
@@ -45,7 +52,12 @@ const ExpandableDiv = function(id, init, expand, obj, tag="div") {
             }
         });
         currentDiv.appendChild(expandText);
-        return currentDiv;
+        if (state == STATE.EXPANDED) {
+            expandText.textContent = "Hide details";
+            expandDiv(expandText);
+        } else {
+            expandText.textContent = "See details";
+        }
     }
 
     function expandDiv(expandText) {
@@ -56,11 +68,17 @@ const ExpandableDiv = function(id, init, expand, obj, tag="div") {
     }
 
     initDiv();
-    return {
+    let returnValue = {
         getDiv,
         initDiv,
+        refresh,
         expandDiv,
     };
+    //let attr = document.createAttribute("data-expandable-div");
+    //currentDiv.setAttributeNode(attr);
+    //currentDiv.setAttribute("data-expandable-div", function() {return returnValue});
+    currentDiv.expandableDiv = returnValue;
+    return returnValue;
 };
 
 const divHelper = (function() {
@@ -69,10 +87,14 @@ const divHelper = (function() {
         // div.setAttribute("style", "text-align: left;");
         const heading = document.createElement("h3");
         heading.textContent = headingText;
-        const p = document.createElement("p");
-        p.textContent = text;
         div.appendChild(heading);
-        div.appendChild(p);
+
+        if (text) {
+            const p = document.createElement("p");
+            p.textContent = text;
+            div.appendChild(p);
+        }
+
         return div;
     }
 

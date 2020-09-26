@@ -5,6 +5,10 @@ body {
     overflow: auto;
 }
 
+div {
+    position: relative;
+}
+
 .sidebar {
     position: relative;
     width: 150px;
@@ -72,5 +76,12 @@ h3 {
 
 .expansion {
     
+}
+
+.checklist {
+    position: relative;
+    width: 100%;
+    min-height: 20px;
+    background-color: antiquewhite;
 }
 

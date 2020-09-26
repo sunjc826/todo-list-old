@@ -17,21 +17,7 @@ let runTodo = function() {
 
 console.log("todo.js running");
 
-function pubSub() {
-    events.on("addCategory", 
-        category => (categoryList.addCategory(category)));
-    events.on("queryCategory", 
-        category => {
-            let todoList = categoryList.getTodoList(category);
-            events.emit("answerCategory", todoList);
-        });
-    events.on("createTodo", 
-        (todoList, todoData) => {
-            // const [name, date, priority] = todoData;
-            todoList.add(...todoData);
-            events.emit("doneCreateTodo");
-        });
-}
+
 
 const categoryList = (function() {
     const categoryMap = {};
@@ -76,7 +62,7 @@ const TodoList = function(name="Sample Todo list") {
     }
 
     function add(name, date, priority) {
-        const todo = new Todo(name, date, priority);
+        const todo = new Todo(name, date, priority, todoList.length);
         todoList.push(todo);
     }
 
@@ -96,7 +82,7 @@ const TodoList = function(name="Sample Todo list") {
     }
 }
 
-const Todo = function(name, date, priority) {
+const Todo = function(name, date, priority, index) {
     name = name || "Sample Task";
     let complete = "false";
     let notes = "";
@@ -142,6 +128,10 @@ const Todo = function(name, date, priority) {
         return notes;
     }
 
+    function getIndex() {
+        return index;
+    }
+
     function setName(newName) {
         name = newName;
     }
@@ -168,6 +158,7 @@ const Todo = function(name, date, priority) {
         getDate,
         getPriority,
         getNotes,
+        getIndex,
         setName,
         setDate,
         setPriority,
@@ -185,14 +176,15 @@ const Checklist = function() {
         } else {
             listItems.splice(index, 0, listItem);
         }
+        console.table(listItems);
     }
 
     function deleteItem(index) {
-        listItem.splice(index, 1);
+        listItems.splice(index, 1);
     }
 
     function toggleItem(index) {
-        listItem[index].toggleSelected;
+        listItems[index].toggleSelected;
     }
 
     function getLength() {
@@ -200,15 +192,15 @@ const Checklist = function() {
     }
 
     function getItemTextContent(index) {
-        return listItem[index].getTextContent();
+        return listItems[index].getTextContent();
     }
 
     function getItemStatus(index) {
-        return listItem[index].getStatus();
+        return listItems[index].isSelected();
     }
 
     function setItemTextContent(index, newTextContent) {
-        listItem[index].setTextContent(newTextContent);
+        listItems[index].setTextContent(newTextContent);
     }
 
     return {
@@ -217,6 +209,7 @@ const Checklist = function() {
         toggleItem,
         getLength,
         getItemTextContent,
+        getItemStatus,
         setItemTextContent,
     };
 }
@@ -246,9 +239,28 @@ const ListItem = function(selected=false, textContent="") {
         getTextContent, 
         setTextContent,
     };
-}
+};
 
-pubSub();
+(function pubsub() {
+    events.on("addCategory", 
+        category => (categoryList.addCategory(category)));
+    events.on("queryCategory", 
+        category => {
+            let todoList = categoryList.getTodoList(category);
+            events.emit("answerCategory", todoList);
+        });
+    events.on("createTodo", 
+        (todoList, todoData) => {
+            // const [name, date, priority] = todoData;
+            todoList.add(...todoData);
+            events.emit("refresh");
+        });
+    events.on("addChecklistItem", 
+        (todo, item) => {
+            todo.addListItem(false, item);
+            events.emit("refreshTodo", todo.getIndex());
+        });
+})();
 
 
 };
