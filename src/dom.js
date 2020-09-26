@@ -1,6 +1,7 @@
 // master class for DOM manipulation related functionality
 
 import events from "./pubsub.js";
+import {ExpandableDiv, divHelper, formHelper} from "./domClass.js";
 
 let runDom = function() {
 console.log("dom.js running");
@@ -18,6 +19,7 @@ const todoHeading = mainPanel.querySelector("#todo-heading");
 const todoPanel = mainPanel.querySelector("#todo-list");
 const addTodoBtn = mainPanel.querySelector("#add-todo");
 
+// event listeners
 categories.forEach(category => {
     events.emit("addCategory", category.getAttribute("id"));
     category.addEventListener("click", catListener);
@@ -25,6 +27,7 @@ categories.forEach(category => {
 addTodoBtn.addEventListener("click", addTodoBtnListener);
 
 function catListener(e) {
+    addTodoBtn.setAttribute("style", "display: block;");
     events.emit("queryCategory", this.getAttribute("id"));
 }
 
@@ -32,6 +35,7 @@ function addTodoBtnListener(e) {
     todoPanel.appendChild(newTodoForm); // remember to delete form after submission
 }
 
+// helper functions
 const newTodoForm = (function() {
     const div = document.createElement("div");
     div.setAttribute("style", "position: relative; width: 100%; height: 100%");
@@ -46,7 +50,7 @@ const newTodoForm = (function() {
     ];
     
     for (let input of inputs) {
-        const inputField = createInputField(...input);
+        const inputField = formHelper.createInputField(...input);
         form.appendChild(inputField);
     }
 
@@ -61,9 +65,13 @@ const newTodoForm = (function() {
         const inputs = todoForm.querySelectorAll("input");
         const todoData = [];
         for (let input of inputs) {
+            // console.log(input.value);
             todoData.push(input.value);
+            input.value = "";
         }
         events.emit("createTodo", currentTodoList, todoData); // should currentTodoList be here or in todo.js?
+        this.parentNode.remove();
+        console.log("Form submitted");
     }
 
     div.appendChild(submitBtn);
@@ -71,27 +79,62 @@ const newTodoForm = (function() {
     return div;
 })();
 
-function createInputField(inputName, inputId, inputType="text") {
-    const label = document.createElement("label");
-    const input = document.createElement("input");
-    input.setAttribute("id", inputId);
-    input.setAttribute("type", inputType);
-    label.appendChild(input);
-    return label;
-}
-
-
 function displayList(todoList) {
     todoHeading.textContent = todoList.getName();
-    let numItems = todoList.getTodoCount();
-    for (let i = 0; i < numItems; i++) {
-        const todo = todoList.getTodo(i);
-        const todoDiv = createTodo(todo, i);
-        todoPanel.appendChild(todoDiv);
-    }
+    divHelper.displayList(todoPanel, todoList, createTodoDiv);
 }
 
-function createTodo(todo, index) {
+
+
+function createTodoDiv(todo, index) {
+    const id = index;
+
+    function initTodo(todoObj) {
+        const div = document.createElement("div");
+        const name = todoObj.getName();
+        const date = todoObj.getDate();
+        const priority = todoObj.getPriority();
+    
+        const lst = [["name", name], ["date", date], ["priority", priority]];
+        for (let item of lst) {
+            div.appendChild(divHelper.createDivWithHeading(item[0], item[1]));
+        }
+        return div;
+    }
+
+    function expandTodo(todoObj) {
+        const div = document.createElement("div");
+        const notes = todoObj.getNotes();
+        const len = todoObj.getListLength();
+
+        const elements = [];
+        const lst = [["notes", notes]];
+        for (let item of lst) {
+            div.appendChild(divHelper.createDivWithHeading(item[0], item[1]));
+        }
+
+        const checklistDiv = document.createElement("ul"); 
+        for (let i = 0; i < len; i++) {
+            const text = todoObj.getListItemText();
+            const selected = todoObj.getListItemStatus();
+            const listItem = document.createElement("li");
+            listItem.textContent = text;
+            if (selected) {
+                listItem.setAttribute("style", "list-style-type: bullet;");
+            } else {
+                listItem.setAttribute("style", "list-style-type: circle;");
+            }
+            checklistDiv.appendChild(listItem);
+        }
+        div.appendChild(checklistDiv);
+        return div;
+    }
+
+    return ExpandableDiv(id, initTodo, expandTodo, todo, "section");
+}
+
+/*
+function createExpandedTodo(todo, index) {
     const todoDiv = document.createElement("div");
     todoDiv.setAttribute("id", `${index}`);
     const name = todo.getName();
@@ -120,23 +163,14 @@ function createTodo(todo, index) {
         checklistDiv.appendChild(listItem);
     }
     todoDiv.appendChild(checklistDiv);
+    return todoDiv;
 }
-
-function createDivWithHeading(headingText, text) {
-    const div = document.createElement("div");
-    // div.setAttribute("style", "text-align: left;");
-    const heading = document.createElement("h3");
-    heading.textContent = headingText;
-    const p = document.createElement("p");
-    p.textContent = text;
-    div.appendChild(heading);
-    div.appendChild(p);
-    return div;
-}
+*/
 
 function pubSub() {
     events.on("answerCategory", 
         todoList => {
+            currentTodoList = todoList;
             displayList(todoList);
         });
     events.on("doneCreateTodo", 

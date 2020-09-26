@@ -16,10 +16,10 @@ var events = {
       };
     }
   },
-  emit: function (eventName, data) { // pub
+  emit: function (eventName, ...data) { // pub
     if (this.events[eventName]) {
       this.events[eventName].forEach(function(fn) {
-        fn(data);
+        fn(...data);
       });
     }
   }

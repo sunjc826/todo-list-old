@@ -28,7 +28,7 @@ function pubSub() {
     events.on("createTodo", 
         (todoList, todoData) => {
             // const [name, date, priority] = todoData;
-            todoList.addTodo(...todoData);
+            todoList.add(...todoData);
             events.emit("doneCreateTodo");
         });
 }
@@ -50,7 +50,7 @@ const categoryList = (function() {
         addCategory,
         getTodoList,
     }
-})();
+}) ();
 
 
 const TodoList = function(name="Sample Todo list") {
@@ -75,24 +75,24 @@ const TodoList = function(name="Sample Todo list") {
         }
     }
 
-    function addTodo(name, date, priority) {
+    function add(name, date, priority) {
         const todo = new Todo(name, date, priority);
         todoList.push(todo);
     }
 
-    function getTodo(index) {
+    function getAtIndex(index) {
         return todoList[index];
     }
 
-    function getTodoCount() {
+    function getCount() {
         return todoList.length;
     }
 
     return {
         getName,
-        addTodo, 
-        getTodo,
-        getTodoCount,
+        add, 
+        getAtIndex,
+        getCount,
     }
 }
 
@@ -161,6 +161,7 @@ const Todo = function(name, date, priority) {
     return {
         toggleListItem,
         addListItem,
+        getListLength,
         getListItemText,
         getListItemStatus,
         getName,
