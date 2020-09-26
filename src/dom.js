@@ -1,7 +1,7 @@
 // master class for DOM manipulation related functionality
 
 import events from "./pubsub.js";
-import {ExpandableDiv, divHelper, formHelper} from "./domClass.js";
+import {ExpandableDiv, divHelper, formHelper} from "./DomClass.js";
 
 let runDom = function() {
 console.log("dom.js running");
@@ -245,7 +245,6 @@ function createExpandedTodo(todo, index) {
             displayTodo(id);
         });
 })();
-
 
 };
 

@@ -32,9 +32,18 @@ const categoryList = (function() {
         return categoryMap[category];
     }
 
+    function toString() {
+        const output = [];
+        for (let cat in categoryMap) {
+            output.push(categoryMap[cat].toString());
+        }
+        return `{${output.join("")}}`;
+    }
+
     return {
         addCategory,
         getTodoList,
+        toString,
     }
 }) ();
 
@@ -74,11 +83,20 @@ const TodoList = function(name="Sample Todo list") {
         return todoList.length;
     }
 
+    function toString() {
+        const output = [];
+        for (let todo of todoList) {
+            output.push(todo.toString());
+        }
+        return `{${output.join("")}}`;
+    }
+
     return {
         getName,
         add, 
         getAtIndex,
         getCount,
+        toString,
     }
 }
 
@@ -148,6 +166,10 @@ const Todo = function(name, date, priority, index) {
         notes = newNotes;
     }
 
+    function toString() {
+        return `{${name},${date},${priority},${notes},${checklist.toString()}}`;
+    }
+
     return {
         toggleListItem,
         addListItem,
@@ -162,7 +184,8 @@ const Todo = function(name, date, priority, index) {
         setName,
         setDate,
         setPriority,
-        setNotes
+        setNotes,
+        toString,
     };
 }
 
@@ -203,6 +226,14 @@ const Checklist = function() {
         listItems[index].setTextContent(newTextContent);
     }
 
+    function toString() {
+        const output = [];
+        for (let item of listItems) {
+            output.push(item.toString());
+        }
+        return `{${output.join("")}}`;
+    }
+
     return {
         addItem, 
         deleteItem,
@@ -211,6 +242,7 @@ const Checklist = function() {
         getItemTextContent,
         getItemStatus,
         setItemTextContent,
+        toString,
     };
 }
 
@@ -233,11 +265,16 @@ const ListItem = function(selected=false, textContent="") {
         textContent = newTextContent;
     }
 
+    function toString() {
+        return `{${selected},${textContent}}`
+    }
+
     return {
         toggleSelected,
         isSelected,
         getTextContent, 
         setTextContent,
+        toString,
     };
 };
 
@@ -259,6 +296,10 @@ const ListItem = function(selected=false, textContent="") {
         (todo, item) => {
             todo.addListItem(false, item);
             events.emit("refreshTodo", todo.getIndex());
+        });
+    events.on("saveAll", 
+        () => {
+            events.emit("saveDataReady", categoryList, "category-list");
         });
 })();
 
